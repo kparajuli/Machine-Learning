@@ -1,0 +1,35 @@
+---
+title: "Machine-Learning"
+---
+
+Machine Learning (ML), a revolutionary field within the realm of artificial intelligence, empowers computers to learn from data and make informed decisions without explicit programming. At its core, ML is a paradigm that enables systems to recognize patterns, draw insights, and improve performance over time through experience. Whether it's predicting stock prices, recognizing speech, or recommending personalized content, machine learning algorithms have permeated various facets of our daily lives. The driving force behind ML's success lies in its ability to uncover hidden patterns within vast datasets, allowing for the development of models that can generalize and adapt to new information. As we embark on this exploration of machine learning, we delve into the algorithms, methodologies, and applications that are reshaping the landscape of technology and decision-making. Join us on this journey through the intricacies of machine learning, where the convergence of data and computation opens up new frontiers of possibilities.
+
+There are **Five** different aspects of Machine Learning the blog explores:
+
+1. Probability theory and random variables
+2. Clustering
+3. Linear and nonlinear regression
+4. Classification
+5. Anomaly/Outlier detection
+
+Each of topics are explored more in the tabs above!
+
+The source git repository is attached here: [Source Github Repository](https://github.com/kparajuli/Machine-Learning)
+The data sets used are placed in a different repository here: [Data Set Repository](https://github.com/kparajuli/CS5805)
+
+The following are the list of kaggle projects that served as an inspiration for the explorations. 
+
+**References**
+
+1. [https://www.kaggle.com/code/tharakinfinity/k-means-clustering-in-r](https://www.kaggle.com/code/tharakinfinity/k-means-clustering-in-r)
+
+2. [https://www.kaggle.com/code/tharakinfinity/hc-clustering](https://www.kaggle.com/code/tharakinfinity/hc-clustering)
+
+3. [https://www.kaggle.com/code/meepbobeep/intro-to-regression-and-classification-in-r](https://www.kaggle.com/code/meepbobeep/intro-to-regression-and-classification-in-r)
+
+4. [https://www.kaggle.com/code/pranjalpandey12/simple-to-multiple-and-polynomial-regression-in-r/notebook](https://www.kaggle.com/code/pranjalpandey12/simple-to-multiple-and-polynomial-regression-in-r/notebook)
+
+5. [https://www.kaggle.com/code/norealityshows/outlier-detection-with-isolation-forest-in-r](https://www.kaggle.com/code/norealityshows/outlier-detection-with-isolation-forest-in-r)
+
+
+

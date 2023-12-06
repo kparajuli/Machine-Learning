@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Machine-Learning"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - prob_and_randvar.qmd
+      - clustering.qmd
+      - regression.qmd
+      - classification.qmd
+      - anomaly.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+

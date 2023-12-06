@@ -1,0 +1,114 @@
+---
+title: "Probability Theory and Random Variables"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+Probability theory and random variables are fundamental to machine learning, providing the groundwork for comprehending uncertainty, making predictions, and constructing models that learn from data. In this blog post, we will explore these concepts using R, offering explanations along with some code to show some common examples to enhance understanding.
+
+## Probability Theory
+
+### Sample Space (S)
+
+A sample space is the set of all possible outcomes of a random experiment. Let us consider the example of tossing out a fair coin.
+
+```{r echo = TRUE}
+s_coin <- c('Heads', 'Tails')
+s_coin
+```
+
+### Event (E)
+
+An event is a subset of the sample space, representing a collection of outcomes. For the coin example:
+
+```{r echo = TRUE}
+e_head <- c('Heads')
+print(e_head)
+```
+
+### Probability (P)
+
+The probability of an event is a number between 0 and 1, indicating the likelihood of the event occurring. For a fair coin:
+
+```{r echo = TRUE}
+p_head <- 0.5
+print(p_head)
+```
+
+### Probability Rules
+
+Addition Rule
+
+The addition rule calculates the probability of the union of two events:
+
+$$
+P(A \ \cup \ B) = P(A) + P(B) - P(A \ \cap \ B)
+$$
+
+### Conditional Probability
+
+Conditional probability represents the likelihood of an event given that another event has occurred:
+
+$$
+P(A|B) = \frac{P(A \ \cap \ B)} {P(B)}
+$$
+
+#### Random Variables
+
+A random variable is a variable whose possible values are numerical outcomes of a random experiment. Consider rolling a fair six-sided die:
+
+```{r echo = TRUE}
+# Simulate rolling a die
+die <- sample(1:6, size=1, replace=TRUE)
+```
+
+### Discrete and Continuous Random Variables
+
+Discrete Random Variable
+
+A discrete random variable takes on a countable number of distinct values. An example is the number of heads in three coin tosses.
+
+Continuous Random Variable
+
+A continuous random variable can take on any value in a given range, like the height of a person.
+
+Keeping these in mind, we are going to use a commonly used example of Coin Tossing
+
+#### Coin Toss Simulation
+
+```{r echo = TRUE}
+## simulate coin tosses
+num_tosses <- 1000
+toss_results <- sample(c('Heads', 'Tails'), size=num_tosses, replace = TRUE)
+
+## count occurrences
+heads <- sum(toss_results == 'Heads')
+tails <- num_tosses - heads
+
+## plot results
+barplot(c(heads, tails), names.arg=c('Heads', 'Tails'), col=c('blue', 'green'), 
+        main='Results of Coin Toss Simulation', xlab='Outcomes', ylab='Count')
+```
+
+This visualization provides a representation of the outcomes of 1000 coin tosses.
+
+#### Probaility Density Function (PDF)
+
+```{r echo = TRUE}
+
+## generate data for a normal distribution 
+data <- rnorm(1000)
+
+## plot the probability density function 
+
+hist(data, probability = TRUE, col = 'skyblue', 
+     main='Probability Density Function (PDF) of a Normal Distribution', 
+     xlab = 'Value', ylab='Probability')
+
+```
+
+The histogram above visualizes the probability density function of a normal distribution, highlighting the concentration of values around the mean.
+
+Understanding probability theory and random variables is crucial for building a solid foundation in machine learning. These concepts enable data scientists and machine learning engineers to make informed decision, build accurate models, and navigate the uncertainties inherent in real-world data.

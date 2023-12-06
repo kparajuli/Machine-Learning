@@ -1,0 +1,183 @@
+---
+title: "Classification: Unveiling Insights"
+format: html
+html:
+  code-link: TRUE
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+Machine learning, a dynamic field at the intersection of computer science and statistics, is empowered by diverse algorithms designed to make sense of data. One of the foundational tasks within machine learning is classification - a process that assigns predefined labels or categories to input data. In this blog post, we will embark on a journey to unravel the intricacies of classification in machine learning (using R), exploring its significance, techniques, and applications.
+
+#### Understanding Classification
+
+Classification is a supervised learning technique where the algorithm learns from labeled training data and predicts the labels of unseen or new data points. In essence, it is the process of mapping input data to predefined classes.
+
+#### Importance of Classification
+
+Classification plays a pivotal role in a myriad of applications in this day and age:
+
+1.  **Spam detection**: Classifying emails as spam or not spam
+2.  **Medical Diagnosis**: Identifying diseases based on patient data
+3.  **Credit Scoring**: Assessing the creditworthiness of individuals
+4.  **Image Recognition**: Recognizing objects or patterns in images
+5.  **Sentiment Analysis**: Analyzing text to determine sentiment (positive, negative, neutral)
+
+#### Techniques in Classification
+
+##### Logistic Regression
+
+Despite the name, logistic regression is a classification algorithm used for binary classification problems. It models the probability of an instance belonging to a particular class.
+
+##### Decision Trees
+
+Decision trees are tree-like structures where each node represents a decision based on a feature. They recursively split the dataset to create a tree that predicts the class label.
+
+##### Support Vector Machines (SVM)
+
+SVM is a powerful algorithm for both binary and multiclass classification. It aims to find the hyperplane that best separates different classes in feature space.
+
+##### Random Forest
+
+Random Forest is an ensemble learning method that constructs multiple decision trees during training and outputs the class that is the mode of the classes (classification) or mean prediction (regression) of the individual trees.
+
+#### Evaluating Classification Models
+
+##### Confusion Matrix
+
+A confusion matrix is a table that describes the performance of a classification model. It summarizes the number of true positive, true negative, false positive, and false negative predictions.
+
+##### Accuracy, Precision, Recall, F1 Score
+
+These metrics provide a more detailed assessment of a classification model's performance:
+
+-   **Accuracy**: Proportion of correctly classified instances.
+-   **Precision**: Proportion of true positive predictions among all positive predictions.
+-   **Recall (Sensitivity)**: Proportion of true positive predictions among all actual positive instances.
+-   **F1 Score**: A balance between precision and recall.
+
+In this blog, we will be using a \`Wine Quality' dataset to apply some classification techniques, mainly Logistic Regression and Decision Trees.
+
+```{r echo=FALSE}
+library(pROC)
+library(rpart)
+library(rpart.plot)
+library(caret)
+```
+
+```{r echo=FALSE}
+#setwd("/Users/khushi/Downloads")
+wine <- read.csv('/Users/khushi/Downloads/winequality-red.csv', stringsAsFactors = T)
+
+```
+
+```{r echo=TRUE}
+
+head(wine)
+```
+
+In this dataset the first 11 are the objective variables that measure different chemical aspects of different wines. The 12th dimension **quality** is the output variable, the one we are trying to predict.
+
+To make the classification simpler, we are going to put the quality column into categories. A quality score of 3 or 4 will be classified as **Low**, 5 or 6 as **Medium** and & or 8 as **High**.
+
+```{r echo=TRUE}
+
+wine$low <- wine$quality <= 4
+wine$medium <- wine$quality == 5 | wine$quality == 6
+wine$high <- wine$quality >= 7
+head(wine)
+```
+
+#### Applying Logisitc Regression
+
+For the classification techniques here we will use two approaches/models - one using just the alcohol level and one with more than one variable.
+
+For the first model, we will narrow out down to just being interested in **High** quality wines.
+
+```{r echo =TRUE}
+
+log1_high <- glm (high~alcohol, data=wine, family=binomial(link='logit'))
+log2_high <- glm(high~alcohol + volatile.acidity + citric.acid + sulphates, data=wine, family=binomial(link='logit'))
+
+summary(log1_high)
+summary(log2_high)
+
+```
+
+Looking at the AIC (Akaike information criterion), which gets lower as the model gets better, we can see that combining variables together prove to be better classifying model than just using the alcohol variable. Next, we will make some predictions and use some visualizations to assess the two models.
+
+```{r echo=TRUE}
+
+p_log1_high <- pnorm(predict(log1_high))
+p_log2_high <- pnorm(predict(log2_high))
+```
+
+```{r echo=TRUE}
+
+auc1 <- plot.roc(wine$high, p_log1_high, main="", percent=TRUE, ci=TRUE, print.auc=TRUE)
+auc1.se <- ci.se(auc1, specificities=seq(0,100,5))
+plot(auc1.se,type="shape", col="grey")
+
+auc2 <- plot.roc(wine$high, p_log2_high, main="", percent=TRUE, ci=TRUE, print.auc=TRUE)
+auc2.se <- ci.se(auc2, specificities=seq(0,100,5))
+plot(auc2.se,type="shape", col="blue")
+
+```
+
+These visualizations further support our claim that the second model with more variables is better (the higher the AUC the better the model is).
+
+#### Applying Decision Trees
+
+```{r echo=TRUE}
+
+dtree1 <- rpart(high ~ alcohol + sulphates, data=wine, method = "class")
+summary(dtree1)
+```
+
+```{r echo=TRUE}
+rpart.plot(dtree1)
+pred_dtree1 <- predict(dtree1, newdata=wine, type="class")
+
+```
+
+```{r echo=TRUE}
+
+dtree2 <- rpart(high ~ alcohol + volatile.acidity + citric.acid + sulphates, data=wine, method = "class")
+summary(dtree2)
+
+```
+
+```{r echo=TRUE}
+
+rpart.plot(dtree2)
+pred_dtree2 <- predict(dtree2, newdata=wine, type="class")
+
+```
+
+We will use confusion matrices to evaluate the two decision trees.
+
+```{r echo=TRUE}
+
+table(wine$high, pred_dtree1)
+
+table(wine$high, pred_dtree2)
+```
+
+Next, we will calculate the accuracy using $$Accuracy = \frac{True Positive + True Negative}  {(True Positive + True Negative + FalsePositve + FalseNegative)} $$
+
+```{r echo=TRUE}
+accuracy1 <- (1343 + 75) / (1343 + 75 + 39 + 142)
+print(accuracy1)
+
+```
+
+```{r echo=TRUE}
+accuracy2 <- (1334 + 111) / (1334 + 111 + 48 + 106)
+print(accuracy2)
+
+```
+
+The second model with more of the variables has a better accuracy of **90.36%**.
+
+In conclusion, classification in machine learning is a fundamental task with wide-ranging applications. By employing various algorithms and evaluating their performance, data scientists and machine learning practitioners can build robust models capable of making accurate predictions.

@@ -1,0 +1,131 @@
+---
+title: "Clustering: Unraveling Patterns"
+format: html
+html:
+  code-link: TRUE
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+Clustering involves grouping similar data points together, revealing inherent structures within datasets. In this blog post, we will dive into the realm of clustering, exploring its concepts, applications, and implementations in R. To enhance understanding, we will include some code snippets and visualizations using the `Mall Customers` dataset, offering an interesting perspective on the power of clustering.
+
+```{r echo=FALSE}
+setwd("/Users/khushi/Downloads")
+customer <- read.csv('Mall_Customers.csv',
+                    stringsAsFactors = T)
+```
+
+```{r echo=TRUE}
+head(customer)
+```
+
+#### Understanding Clustering
+
+Clustering is a form of unsupervised learning where the algorithm identifies patterns or groups within a dataset without prior knowledge of the labels. The objective is to group similar data points, making it a valuable tool for tasks such as customer segmentation, anomaly detection, and image segmentation.
+
+### Types of Clustering
+
+## K-Means Clustering
+
+K-Means is a popular partitioning method where the algorithm divides the dataset into "k" clusters, aiming to minimize the within-cluster sum of squares.
+
+## Hierarchical Clustering
+
+Hierarchical clustering builds a tree-like structure of clusters, allowing for a visual representation of the relationships between data points.
+
+#### Implementing Clustering for Segmentation
+
+## Data Preparation
+
+```{r echo=TRUE}
+
+customer <- customer[,4:5]
+plot(customer)
+
+```
+
+## Applying K-Means
+
+Based on the scatter plot above, and to apply basic K-means algorithm, we use number of clusters = 3.
+
+```{r echo=TRUE}
+
+## components of k-means
+kmeans(customer, 3)
+
+```
+
+## Elbow Method
+
+Instead intuitively picking the number of factors, we can use code to assess the within-cluster sum of squares (WCSS) for different values of K and look for the "elbow" point where the rate decrease in WCSS starts to decrease.
+
+```{r echo=TRUE}
+set.seed(123)
+sum_of_squares <- vector()
+
+for (i in 1:10) {
+  x <- (sum(kmeans(customer, i)$withinss))
+  sum_of_squares[i] = x
+  print(x)
+}
+```
+
+```{r echo=TRUE}
+plot(x=1:10, y=sum_of_squares, type='o')
+
+```
+
+We can see that the sum of squares has a drastic drop at 6 clusters.
+
+```{r echo=TRUE}
+## fir the model with k=6
+model_k6 <- kmeans(customer, 6)
+model_k6
+
+```
+
+```{r echo=TRUE}
+## visualizing the results for k=6
+library(cluster)
+
+clusplot(customer, model_k6$cluster, lines=0, shade=T, color=T)
+
+```
+
+## Applying Hierarchical Clustering
+
+In hierarchical clustering, we will use euclidean distance to learn distance between the data points.
+
+```{r echo=TRUE}
+d <- dist(customer, method = 'euclidean')
+
+```
+
+```{r echo=TRUE}
+library(repr)
+options(repr.plot.width=15, repr.plot.height = 12)
+
+## creating a dendogram to visualize the hierarchy
+
+dendogram <- hclust(d, method = 'ward.D')
+plot(dendogram)
+abline(h=700,col='red')
+```
+
+Red line in the diagram above, cut the 5 hierarchies that have high euclidean distance.
+
+```{r echo=TRUE}
+hier <- hclust(d, method = 'ward.D')
+y_hier <- cutree(hier, 5)
+y_hier
+```
+
+```{r echo=TRUE}
+clusplot(customer, clus=y_hier, lines=0, color=TRUE)
+
+```
+
+The plot above offer a visual representation of clusters for the dataset.
+
+Clustering is a versatile technique that uncovers patterns and structures within datasets. By implementing clustering algorithms such as K-Means and Hierarchical Clustering. We were able to gain valuable insights into the inherent relationships among data points. The visualizations not only aid in understanding the results but also serve as powerful tools for conveying complex patterns.

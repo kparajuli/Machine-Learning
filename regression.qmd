@@ -1,0 +1,266 @@
+---
+title: "Regression: Linear and Non-Linear"
+format: html
+html:
+  code-link: TRUE
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+Machine Learning is a realm filled with diverse algorithms and offers powerful tools for understanding relationships between variables and making predictions. Two fundamental techniques for regression tasks are linear regression and non-linear regression. In this blog, we will embark on a journey to explore concepts, applications, and implementations of both linear and non-linear regression.
+
+### Linear Regression
+
+Linear regression is a straightforward yet powerful method for modeling the relationship between a dependent variable ($y$) and one or more independent variables ($x$). The relationship is assumed to be linear, meaning that a change in the independent variable(s) results in a proportional change in the dependent variable.
+
+#### Simple Linear Regression (SLR)
+
+In SLR, there is only one independent variable. The relationship can be expressed as:
+
+$$y = \beta_0 + \beta_1 . x + \epsilon$$
+
+Where:\
+
+-   $y$ is the dependent variable\
+-   $x$ is the independent variable\
+-   $\beta_0$ is the intercept\
+-   $\beta_1$ is the slope\
+-   $\epsilon$ is the error term\
+
+#### Multiple Linear Regression
+
+When there are multiple independent variables, the equation becomes:
+
+$$y = \beta_0 + \beta_1 . x_1 + \beta_2 . x_2 + ... + \beta_n . x_n + \epsilon$$
+
+### Non-Linear Regression
+
+Non-linear regression allows for more complex relationships between variables by using non-linear functions to model the data. This is particularly useful when the linear assumptions of relationships breaks down.
+
+#### Polynomial Regression
+
+Non-linear regression is a form of non-linear regression where the relationship between variables is modeled as an n-th degree polynomial. For a quadratic polynomial:
+
+$$y = \beta_0 + \beta_1.x + \beta_2. x^2 + \epsilon$$ \#### Exponential and Logarithmic Regression
+
+When the relationship between variables follows an exponential or logarithmic pattern, non-linear regression can capture these relationships effectively.
+
+Exponential Regression: $y = \beta_0 . e^{\beta_1.x} +\epsilon$
+
+Logarithmic Regression: $y = \beta_0 + \beta_1 . ln(x) + \epsilon$
+
+### Applications and Visualiations
+
+#### Real-world Applications
+
+Linear and non-linear regression find applications in various applications:\
+
+-   **Economics**: predicting economic indicators\
+-   **Biology**: modeling growth rates of organisms\
+-   **Finance**: forecasting stock prices  
+-   **Engineering**: predicting equipment performance\
+
+### Model Evaluation
+
+#### Assessing Model Performance
+
+-   **Mean Squared Error (MSE)**: measures the average squared difference between predicted and actual values\
+
+-   **R-squared (**$R^2$): indicates the proportion of the variance in the dependent variable that is predictable from the independent variable(s)
+
+### Applying Regression
+
+Next, we are going to apply some linear and non-linear algorithms on a dataset - **Advertising Dataset**.
+
+```{r echo=FALSE}
+
+library(olsrr)
+library(car)
+library(broom)
+library(tidyverse)  
+library(caret)
+```
+
+```{r echo=FALSE}
+data <- read.csv('/Users/khushi/Downloads/advertising.csv',
+                    stringsAsFactors = T)
+```
+
+```{r echo=TRUE}
+head(data)
+```
+
+An important aspect of regression problems is deciding the target and predictors. This does vary based on the problem at hand or the research questions one is trying to answer. With this data, let's say we want to use **Sales** as the **Target** variable and **TV, Radio, Newspaper** as **Predictors**.
+
+Looking at the scatter plot matrix between each fields in the dataset.
+
+```{r echo=TRUE}
+
+pairs(data, upper.panel = NULL)
+```
+
+Scatter plots help get sense of correlation between field, which is an important metric for regression. We can see that that TV and Radio, and TV and Newspaper have low correlations. We can also observe that there is a high correlation between TV and Sales, Radio and Sales and Newspaper and Sales.
+
+#### Splitting Dataset and Modeling
+
+Next, we split that dataset into train and test splits. We use the training set first to fit the model and then use the testing set to check the performance of the obtained model. We will randomly split the data here.
+
+```{r echo=TRUE}
+set.seed(123)
+
+training_samples <- data$Sales %>% createDataPartition(p = 0.75, list = FALSE)
+
+train <- data[training_samples, ]
+test <- data[-training_samples, ]
+
+```
+
+#### Fitting Simple Linear Regression
+
+Three different models using the three predictors and we will look at the **Adjusted R2** to find the percentage variance explained by these models.
+
+```{r echo=TRUE}
+
+slr1 <- lm(Sales ~ TV, data=train)
+
+summary(slr1)
+```
+
+```{r echo=TRUE}
+
+slr2 <- lm(Sales ~ Radio, data=train)
+
+summary(slr2)
+```
+
+```{r echo=TRUE}
+
+slr3 <- lm(Sales ~ Newspaper, data=train)
+
+summary(slr3)
+```
+
+The first model, with TV as the predictor, explains approximately **80%** of variability of the target with a residual standard error of **2.39**. The second model, with Radio as the predictor, explains **15%** of variability of the target with an error of **4.93%**. The third model, with Newspaper as the predictor, explains **3%** of variability of the target with an error of **5.26%**.
+
+Clearly, TV as a predictor is explaining more variability of target. However, using a single plot means we might completely neglect the effect of the other two predictors on Sales.
+
+#### Fitting Multiple Linear Regression
+
+There are multiple methods to extend a simple linear regression. But since, we have only three predictors to work with, we will use a **Forward Selection Method** to explore more models.
+
+Since, TV as a predictor explained most variability(**80%**) earlier, we can add Radio as the two predictors.
+
+```{r echo=TRUE}
+mlr1 <- lm(Sales ~ TV + Radio, data=train)
+
+summary(mlr1)
+
+```
+
+We can notice that the **Adjusted R2** has improved to **89%**. Having said that, we need to check that the improvement is statistically significant. For this, we will use Analysis of Variance (ANOVA) to test the null hypothesis - **H0: The improvement is not significantly significant** and **H1 - The improvement is statistically significant**.
+
+```{r echo=TRUE}
+
+anova(slr1, mlr1)
+
+```
+
+The p-value is significantly less than 0.05, and therefore we have sufficient evidence to reject the null hypothesis and accept the alternative.
+
+We can try to extend the model further with using **Newspaper** as a third predictor.
+
+```{r echo=TRUE}
+mlr2 <- lm(Sales ~ TV + Radio + Newspaper, data=train)
+
+summary(mlr2)
+
+```
+
+Looking at the p-value for Newspaper as a predictor, it deems not statistically significant (0.917 \> 0.05). Adjusted R2 changed from **89.52** to **89.45**. For these reasons, we have evidence to not include Newspaper as a predictor in the model.
+
+#### Fitting Orthogonal Polynomial Regression
+
+All the assumptions of Multiple Linear Regression were checked and the conclusion was that variance is constant. One last possibility is to check if there is any non-linear relationship between the target and predictors. From the scatter plot, we looked at the beginning, we have noticed that there is some type of curvilinear relationship. For this, we will be using a Polynomial Regression. We will look at specifically **Orthogonal Polynomial Regression between Sales and predictors TV and Radio**. We already know that Newspaper is not a statistically significant predictor, so we won't be using Newspaper as a predictor for the non-linear regression.
+
+```{r echo=TRUE}
+opr1 <- lm(Sales ~ poly(TV, 2) + poly(Radio, 2) + TV:Radio, data=train)
+
+summary(opr1)
+```
+
+As seen in the last line of output, this model is statistically significant since p-value \<\<\< 0.5. All the coefficients are statistically significant since all p-value are \<\<\< 0.5. This second order orthogonal polynomial model explains **93.08%** variability of target that is a better indication with respect to the multiple linear regression model with TV and Radio as predictor. The Residual standard error for the model is **1.404**.
+
+```{r echo=TRUE}
+anova(mlr1, opr1)
+```
+
+Since the p-value for testing the null hypothesis ($1.168e-13$) is significantly less than 0.05, hence we have sufficient evidence to reject the null hypothesis and accept the alternative. Therefore, the improvement in the Adjusted R2 is statistically significant. To have bases covered, we will also try fitting a third order orthogonal polynomial regression.
+
+```{r echo=TRUE}
+opr2 <- lm(Sales ~ poly(TV,3) + poly(Radio,3) + TV:Radio, data=train)
+summary(opr2)
+```
+
+It is clear from the results above that third order of TV predictor is not statistically significant (p-value \> 0.05). Hence, we won't include this in the model. Hence, the fit is -
+
+```{r echo=TRUE}
+opr3 <- lm(Sales ~ poly(TV,2) + poly(Radio,3) + TV:Radio, data=train)
+summary(opr3)
+
+```
+
+Checking all the assumptions of regression.
+
+```{r echo=TRUE}
+
+# Linearity Assumption
+plot(opr3 ,1)
+
+# Homoscedasticity Assumption 
+ols_test_score(opr3)
+
+# Autocorrelation Assumption 
+durbinWatsonTest(opr3)
+
+# Normality Assumption
+shapiro.test(opr3$residuals)
+
+# Multicolinearity Assumption
+vif(opr3)
+```
+
+#### Making Predictions
+
+```{r echo=TRUE}
+prediction <- opr3 %>% predict(test)
+
+## Checking performance by calculating R2, RMSE, and MAE
+
+data.frame( R2 = R2(prediction, test$Sales), 
+            RMSE = RMSE(prediction, test$Sales),
+            MAE = MAE(prediction, test$Sales))
+
+```
+
+The R2 we obtain seems like a decent fit, however this result is based on one test dataset. Hence, we cannot be certain that the model will perform better on unseen data. Therefore, we will use K-fold cross validation to test the performance of model on a different test dataset.
+
+```{r echo=FALSE}
+
+data <- data %>% filter(Sales != 1.6)
+```
+
+```{r echo=TRUE}
+
+set.seed(123)
+
+train_control <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+
+model_cv <- train(Sales ~ poly(TV,2) + poly(Radio,3) + TV:Radio, data=data, method = "lm",                    trControl = train_control)
+
+print(model_cv)
+```
+
+This model captures almost **94%** variability available in the target on average. Therefore, we can say that this is still a decent fit.
+
+To summarize, we looked at Simple Linear Regression and expanded those to Multiple Linear Regression to find a better fit. To cover all bases, we also tried to fit a polynomial regression model. Ultimately, we found a better fit by comparing variability and p-values. In conclusion, linear and non-linear regression stand as pillars for modeling relationships and making predictions. Understanding when to choose one over the other and how to interpret the results is essential.
